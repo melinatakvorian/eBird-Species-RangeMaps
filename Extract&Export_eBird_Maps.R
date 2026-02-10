@@ -27,7 +27,7 @@ if (!requireNamespace("remotes", quietly = TRUE)) {
 remotes::install_github("ebird/ebirdst")
 
 #set access key for data download
-set_ebirdst_access_key("q2e1kfrur617")
+set_ebirdst_access_key("")
 
 #use load_ranges() to get species ranges
 species_names <- ebirdst_runs #ebirdst_runs has all the available species in it
