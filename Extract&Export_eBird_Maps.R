@@ -2,7 +2,7 @@
 
 #SETUP----
 ##set working directory to pull the files----
-setwd("N:/RStor/CEMML/ClimateChange/0_Natural Resources Teams/Wildlife/AF Viewer OY5 Melina and Gillian/T&E Range Map Data/eBirdDataWrangling")
+setwd("N:/RStor/CEMML/ClimateChange/0_Natural Resources Teams/Wildlife/_RangeMaps/eBird-Species-RangeMaps")
 
 ##install packages----
 # Package names
