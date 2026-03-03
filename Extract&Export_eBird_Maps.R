@@ -156,7 +156,7 @@ for(i in 1:length(testlist)){
 #exporting files to folder ----
 
 #store folder path
-shapefile_folder <- "N:/RStor/CEMML/ClimateChange/0_Natural Resources Teams/Wildlife/AF Viewer OY5 Melina and Gillian/T&E Range Map Data/SHAPEFILES/Temporary"
+shapefile_folder <- "N:/RStor/CEMML/ClimateChange/0_Natural Resources Teams/Wildlife/_RangeMaps/Shapefiles/Temporary"
 
 #identify files that are already completed
 speciesdone <- list.files(path = shapefile_folder, pattern = "\\.shp$")
