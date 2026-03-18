@@ -27,7 +27,7 @@ if (!requireNamespace("remotes", quietly = TRUE)) {
 remotes::install_github("ebird/ebirdst")
 
 #set access key for data download
-set_ebirdst_access_key("")
+set_ebirdst_access_key("q2e1kfrur617")
 
 #use load_ranges() to get species ranges
 species_names <- ebirdst_runs #ebirdst_runs has all the available species in it
@@ -54,21 +54,21 @@ cemml_raw <- cemml_raw %>% select(Species.Common.Name,Species.Latin.Name,Species
 
 ##CEMML & eBird Match ----
 
-#run match
-match_cemml_ebird <- match(cemml_raw$Species.Latin.Name, species_names$scientific_name)
-
-#create list of matched names
-realmatch <- character(length(match_cemml_ebird))
-
-for(i in 1:length(match_cemml_ebird)){
-  val <- match_cemml_ebird[i]
-  realmatch[i] <- species_names$scientific_name[val]
-}
-
-realmatch <- realmatch[!is.na(realmatch)]
-
-rangefile <- as.list(realmatch) #the list of species that eBird has that we need!
-tester <- rangefile #create a copy, in case
+  #run match
+  match_cemml_ebird <- match(cemml_raw$Species.Latin.Name, species_names$scientific_name)
+  
+  #create list of matched names
+  realmatch <- character(length(match_cemml_ebird))
+  
+  for(i in 1:length(match_cemml_ebird)){
+    val <- match_cemml_ebird[i]
+    realmatch[i] <- species_names$scientific_name[val]
+  }
+  
+  realmatch <- realmatch[!is.na(realmatch)]
+  
+  rangefile <- as.list(realmatch) #the list of species that eBird has that we need!
+  tester <- rangefile #create a copy, in case
 
 #Append geospatial file to species in nested list ----
 
@@ -221,3 +221,20 @@ for(i in 1:length(testlist)){
   # }
   
 }
+
+# species that DID NOT get shapefiles----
+ #rangefile is a list of all the matched scientific names from eBird
+  #we need to take: [our list of names] - [rangefile] = the names that were not extracted
+
+  eBirdmatch <- as.list(realmatch)
+  #then take the list of all the species and: [species list] - [combined match list] = [species without matches]
+  
+  no_sources <- cemml_raw %>% 
+    filter(!Species.Latin.Name %in% eBirdmatch)
+  
+  #now store the output in a CSV
+  list_location <- ("N:/RStor/CEMML/ClimateChange/0_Natural Resources Teams/Wildlife/_RangeMaps/NoRangeMaps/eBird_NOT_MATCHED_list.csv")
+  
+  write.csv(no_sources, list_location)
+
+
