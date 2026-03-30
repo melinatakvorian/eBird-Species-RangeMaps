@@ -41,5 +41,6 @@ cemml_raw <- read_xlsx("N:/RStor/CEMML/ClimateChange/0_Natural Resources Teams/W
   
   
 #write CSV with dataframe
-  write.csv(no_sources, paste0(getwd(), "/Species-need-other-map-sources.csv"))
+  csv_location <- "N:/RStor/CEMML/ClimateChange/0_Natural Resources Teams/Wildlife/_RangeMaps/NoRangeMaps"
+  write.csv(no_sources, paste0(csv_location, "/Species-need-other-map-sources.csv"))
   
