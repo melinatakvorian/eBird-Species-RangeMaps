@@ -1,0 +1,45 @@
+#This script will try to narrow down the list of species without range maps from our sources (USFWS, NOAA, and eBird) 
+#based off of the lists that we produced in the other scripts.
+
+#SETUP----
+##set working directory to pull the files----
+setwd("C:/Users/melinata/Documents/RangeMapsWork/")
+
+##install packages----
+# Package names
+packages <- c("readxl","tidyr","dplyr","stringr")
+
+# Install packages not yet installed
+installed_packages <- packages %in% rownames(installed.packages())
+if (any(installed_packages == FALSE)) {
+  install.packages(packages[!installed_packages])
+}
+
+# Packages loading
+invisible(lapply(packages, library, character.only = TRUE))
+
+##load in files ----
+m_eBird_df <- read.csv(paste0(getwd(), "/eBird-RangeMaps/eBird-Species-RangeMaps/MATCHED_list.csv"))
+m_gov_df <- read.csv(paste0(getwd(), "/NOAA-USFWS-RangeMaps/Output/MATCHES_full_scinames.csv"))
+cemml_raw <- read_xlsx("N:/RStor/CEMML/ClimateChange/0_Natural Resources Teams/Wildlife/_Excel Files For Viewer/Species Assessments - Viewer.xlsx")
+
+#Combine lists of matches ----
+  ##pull species names lists out per source
+  m_usfws_species <- m_gov_df$USFWS
+  m_noaa_species <- m_gov_df$NOAA
+  m_eBird_list <- m_eBird_df$Species.Latin.Name
+  
+  ##create big list
+  m_big_list <- append(m_usfws_species, m_noaa_species, after = length(m_usfws_species))
+  m_big_list <- append(m_eBird_list, m_big_list, after = length(m_big_list))  
+  m_big_list <- unique(m_big_list)  
+  m_big_list <- as.list(m_big_list)
+  
+#filter from CEMML list ----
+  no_sources <- cemml_raw %>% 
+    filter(!Species.Latin.Name %in% m_big_list)
+  
+  
+#write CSV with dataframe
+  write.csv(no_sources, paste0(getwd(), "/Species-need-other-map-sources.csv"))
+  
