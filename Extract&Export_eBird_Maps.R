@@ -222,7 +222,6 @@ for(i in 1:length(testlist)){
 }
 
 # species that DID NOT get shapefiles----
-#SAVE LIST OF NOT MATCHED ----
 #try to identify the species that did not get any shapefiles
 #need to take the list of all matches: [USFWS matches] + [NOAA matches] = [combined match list]
 search_list <- list()
@@ -243,8 +242,8 @@ write.csv(no_sources_df, list_location)
   #we need to take: [our list of names] - [rangefile] = the names that were not extracted
 
   eBirdmatch <- as.list(realmatch)
-  #then take the list of all the species and: [species list] - [combined match list] = [species without matches]
   
+  #then take the list of all the species and: [species list] - [combined match list] = [species without matches]
   no_sources <- cemml_raw %>% 
     filter(!Species.Latin.Name %in% eBirdmatch)
   
@@ -253,4 +252,11 @@ write.csv(no_sources_df, list_location)
   
   write.csv(no_sources, list_location)
 
+  #create list of MATCHED
+  eBirdmatches <- cemml_raw %>% 
+    filter(Species.Latin.Name %in% rangefile)
+  
+  list_location <- paste0(getwd(), "/MATCHED_list.csv")
+  
+  write.csv(eBirdmatches, list_location)
 
