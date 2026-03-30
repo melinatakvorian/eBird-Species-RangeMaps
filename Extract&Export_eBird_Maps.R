@@ -25,8 +25,8 @@ if (!requireNamespace("remotes", quietly = TRUE)) {
 }
 remotes::install_github("ebird/ebirdst")
 
-#set access key for data download
-set_ebirdst_access_key("q2e1kfrur617")
+# ! set access key for data download - ONLY IF YOU HAVE NEVER BEFORE
+  #    set_ebirdst_access_key("q2e1kfrur617")
 
 #use load_ranges() to get species ranges
 species_names <- ebirdst_runs #ebirdst_runs has all the available species in it
@@ -93,7 +93,7 @@ for(i in 1:length(rangefile)){
   speciesID <- which(cemml_raw$Species.Latin.Name == species)
   speciesID <- as.numeric(speciesID)
   
-  rangefile[[i]][[2]]$speciesID <- speciesID
+  rangefile[[i]][[2]]$speciesID <- cemml_raw$Species.ID[speciesID]
   
   print(paste(species, "speciesID: ",speciesID, " | has been added"))
   #a line after this will say whether or not the species file already existed
@@ -135,7 +135,7 @@ for(i in 1:length(testlist)){
     print(paste(testlist[[i]][[2]]$scientific_name[1], " relabled row | index number: ", i))
   }
   else if(length(testlist[[i]][[2]]$season) < 3){ #print a message to check that nothing else was missed
-    print(paste("SEE HERE: ", testlist[[i]][[2]]$scientific_name[1], " has less than 3 rows ",
+    print(paste("SEE HERE: ", testlist[[i]][[2]]$scientific_name[1], " has less than 3 rows: ",
                 testlist[[i]][[2]]$season[1], " ", testlist[[i]][[2]]$season[2],
                 " | index number: ", i))
     
@@ -155,21 +155,21 @@ for(i in 1:length(testlist)){
 #exporting files to folder ----
 
 #store folder path
-shapefile_folder <- "N:/RStor/CEMML/ClimateChange/0_Natural Resources Teams/Wildlife/_RangeMaps/Shapefiles/Temporary"
+  shapefile_folder <- "N:/RStor/CEMML/ClimateChange/0_Natural Resources Teams/Wildlife/_RangeMaps/Shapefiles/Temporary"
 
 #identify files that are already completed
-speciesdone <- list.files(path = shapefile_folder, pattern = "\\.shp$")
+  speciesdone <- list.files(path = shapefile_folder, pattern = "\\.shp$")
 
 #remove .shp ending to be able to run comparison later
-for(i in 1:length(speciesdone)){
-  strL <- str_length(speciesdone[i])
-  newL <- strL - 4
-  speciesdone[i] <- str_sub(speciesdone[i],1,newL)
-}
+  for(i in 1:length(speciesdone)){
+    strL <- str_length(speciesdone[i])
+    newL <- strL - 4
+    speciesdone[i] <- str_sub(speciesdone[i],1,newL)
+  }
 
 #EXPORT ALL FILES IN LIST THAT HAVE NOT BEEN DONE ALREADY
 #list <- c()
-for(i in 1:length(testlist)){
+  for(i in 1:length(testlist)){
   
   #pull list item out so that it can be saved individually
   species_object <- testlist[[i]][[2]]
@@ -221,40 +221,10 @@ for(i in 1:length(testlist)){
   
 }
 
-# species that DID NOT get shapefiles----
-#try to identify the species that did not get any shapefiles
-#need to take the list of all matches: [USFWS matches] + [NOAA matches] = [combined match list]
-search_list <- list()
-search_list <- as.list(cemml_raw$Species.Latin.Name)
-
-#compare dataframes to see which do not have range maps
-no_sources <- search_list[!(rangefile %in% search_list)] #WORKS, but only compares names as we have them
-
-#create dataframe for the no_sources
-no_sources_df <-  cemml_raw %>% 
-  filter(Species.Latin.Name %in% no_sources)
-
-#now store the output in a CSV
-list_location <- paste0(getwd(), "/Output/NOT_MATCHED_list.csv")
-write.csv(no_sources_df, list_location)
-
- #rangefile is a list of all the matched scientific names from eBird
-  #we need to take: [our list of names] - [rangefile] = the names that were not extracted
-
-  eBirdmatch <- as.list(realmatch)
-  
-  #then take the list of all the species and: [species list] - [combined match list] = [species without matches]
-  no_sources <- cemml_raw %>% 
-    filter(!Species.Latin.Name %in% eBirdmatch)
-  
-  #now store the output in a CSV
-  list_location <- paste0(getwd(), "/NOT_MATCHED_list.csv")
-  
-  write.csv(no_sources, list_location)
-
+#SAVE PROGRESS OF SPECIES----
   #create list of MATCHED
   eBirdmatches <- cemml_raw %>% 
-    filter(Species.Latin.Name %in% rangefile)
+    filter(Species.Latin.Name %in% tester)
   
   list_location <- paste0(getwd(), "/MATCHED_list.csv")
   
