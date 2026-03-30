@@ -2,8 +2,7 @@
 
 #SETUP----
 ##set working directory to pull the files----
-setwd("N:/RStor/CEMML/ClimateChange/0_Natural Resources Teams/Wildlife/_RangeMaps/eBird-Species-RangeMaps")
-
+setwd("C:/Users/melinata/Documents/RangeMapsWork/eBird-RangeMaps/eBird-Species-RangeMaps")
 ##install packages----
 # Package names
 packages <- c("readxl","tidyverse","tidyr","dplyr","stringr","sf","terra","tmap", "leaflet", "ebirdst")
@@ -223,6 +222,23 @@ for(i in 1:length(testlist)){
 }
 
 # species that DID NOT get shapefiles----
+#SAVE LIST OF NOT MATCHED ----
+#try to identify the species that did not get any shapefiles
+#need to take the list of all matches: [USFWS matches] + [NOAA matches] = [combined match list]
+search_list <- list()
+search_list <- as.list(cemml_raw$Species.Latin.Name)
+
+#compare dataframes to see which do not have range maps
+no_sources <- search_list[!(rangefile %in% search_list)] #WORKS, but only compares names as we have them
+
+#create dataframe for the no_sources
+no_sources_df <-  cemml_raw %>% 
+  filter(Species.Latin.Name %in% no_sources)
+
+#now store the output in a CSV
+list_location <- paste0(getwd(), "/Output/NOT_MATCHED_list.csv")
+write.csv(no_sources_df, list_location)
+
  #rangefile is a list of all the matched scientific names from eBird
   #we need to take: [our list of names] - [rangefile] = the names that were not extracted
 
@@ -233,7 +249,7 @@ for(i in 1:length(testlist)){
     filter(!Species.Latin.Name %in% eBirdmatch)
   
   #now store the output in a CSV
-  list_location <- ("N:/RStor/CEMML/ClimateChange/0_Natural Resources Teams/Wildlife/_RangeMaps/NoRangeMaps/eBird_NOT_MATCHED_list.csv")
+  list_location <- paste0(getwd(), "/NOT_MATCHED_list.csv")
   
   write.csv(no_sources, list_location)
 
