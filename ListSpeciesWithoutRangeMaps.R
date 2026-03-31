@@ -7,7 +7,7 @@ setwd("C:/Users/melinata/Documents/RangeMapsWork/")
 
 ##install packages----
 # Package names
-packages <- c("readxl","tidyr","dplyr","stringr")
+packages <- c("readxl","xlsx", "tidyr","dplyr","stringr")
 
 # Install packages not yet installed
 installed_packages <- packages %in% rownames(installed.packages())
@@ -20,8 +20,8 @@ invisible(lapply(packages, library, character.only = TRUE))
 
 ##load in files ----
 m_eBird_df <- read.csv(paste0(getwd(), "/eBird-RangeMaps/eBird-Species-RangeMaps/MATCHED_list.csv"))
-m_noaa_df <- read.csv(paste0(getwd(), "/NOAA-USFWS-RangeMaps/Output/NOAA_matches.csv"))
-m_usfws_df <- read.csv(paste0(getwd(), "/NOAA-USFWS-RangeMaps/Output/USFWS_matches.csv"))
+m_noaa_df <- read.csv(paste0(getwd(), "/NOAA-USFWS-RangeMaps/Output/extracted_NOAA_matches.csv"))
+m_usfws_df <- read.csv(paste0(getwd(), "/NOAA-USFWS-RangeMaps/Output/extracted_USFWS_matches.csv"))
 cemml_raw <- read_xlsx("N:/RStor/CEMML/ClimateChange/0_Natural Resources Teams/Wildlife/_Excel Files For Viewer/Species Assessments - Viewer.xlsx")
 
 #trim CEMML master list dataset----
@@ -37,8 +37,8 @@ cemml_raw <- cemml_raw %>% select(Species.Common.Name,Species.Latin.Name,Species
 
 #Combine lists of matches ----
   ##pull species names lists out per source
-  m_usfws_species <- m_usfws_df$Species.Latin.Name
-  m_noaa_species <- m_noaa_df$Species.Latin.Name
+  m_usfws_species <- m_usfws_df$SCINAME
+  m_noaa_species <- m_noaa_df$Scienti
   m_eBird_list <- m_eBird_df$Species.Latin.Name
   
   ##create big list
@@ -53,6 +53,6 @@ cemml_raw <- cemml_raw %>% select(Species.Common.Name,Species.Latin.Name,Species
   
   
 #write CSV with dataframe
-  csv_location <- "N:/RStor/CEMML/ClimateChange/0_Natural Resources Teams/Wildlife/_RangeMaps/NoRangeMaps"
-  write.csv(no_sources, paste0(csv_location, "/Species-need-other-map-sources.csv"))
+  excel_location <- "N:/RStor/CEMML/ClimateChange/0_Natural Resources Teams/Wildlife/_RangeMaps/NoRangeMaps"
+  xlsx::write.xlsx(no_sources, paste0(excel_location, "/Species-need-other-map-sources.csv"))
   
