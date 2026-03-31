@@ -54,5 +54,5 @@ cemml_raw <- cemml_raw %>% select(Species.Common.Name,Species.Latin.Name,Species
   
 #write CSV with dataframe
   excel_location <- "N:/RStor/CEMML/ClimateChange/0_Natural Resources Teams/Wildlife/_RangeMaps/NoRangeMaps"
-  xlsx::write.xlsx(no_sources, paste0(excel_location, "/Species-need-other-map-sources.csv"))
+  xlsx::write.xlsx(no_sources, paste0(excel_location, "/Species-need-other-map-sources.xlsx"))
   
