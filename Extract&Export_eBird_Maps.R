@@ -152,7 +152,7 @@ for(i in 1:length(testlist)){
 }
 
 
-#exporting files to folder ----
+#exporting SHAPEfiles to folder ----
 
 #store folder path
   shapefile_folder <- "N:/RStor/CEMML/ClimateChange/0_Natural Resources Teams/Wildlife/_RangeMaps/Shapefiles/Temporary"
@@ -205,21 +205,77 @@ for(i in 1:length(testlist)){
   #CHECK TO SEE IF ALREADY COMPLETED -> IF NOT, create unique name for file
   if(name %in% speciesdone) next #SKIP THIS SPECIES BECAUSE IT IS ALREADY DONE
   
-  #create name using name
-  shapefile_location <- paste0(shapefile_folder,"/", name, ".shp")
-  
+  # #create name using name
+  shapefile_location <- paste0(shapefile_folder,"/", name, ".gpkg")
+
   #export shapefile to file path
   st_write(species_object, shapefile_location, append=FALSE)
   
-  #PRINT what has been exported - not finished
-  # list[length(list+1)] <- name
-  # 
-  # if(i == length(testlist)){
-  #   print("THESE SPECIES WERE EXPORTED TO THE SHAPEFILES FOLDER: ")
-  #   print(list)
-  # }
   
-}
+  }
+  
+  #exporting geopackages to folder ----
+  
+  #store folder path
+  gpkg_folder <- "N:/RStor/CEMML/ClimateChange/0_Natural Resources Teams/Wildlife/_RangeMaps/Shapefiles/Geopackage"
+  
+  #identify files that are already completed
+  speciesdone <- list.files(path = gpkg_folder, pattern = "\\.shp$")
+  
+  #remove .shp ending to be able to run comparison later
+  for(i in 1:length(speciesdone)){
+    strL <- str_length(speciesdone[i])
+    newL <- strL - 4
+    speciesdone[i] <- str_sub(speciesdone[i],1,newL)
+  }
+  
+  #EXPORT ALL FILES IN LIST THAT HAVE NOT BEEN DONE ALREADY
+  #list <- c()
+  for(i in 1:length(testlist)){
+    
+    #pull list item out so that it can be saved individually
+    species_object <- testlist[[i]][[2]]
+    
+    ##rename columns to be <10 characters long----
+    species_object <- rename(species_object,
+                             spec_code = species_code,
+                             sci_name = scientific_name, 
+                             comm_name = common_name,
+                             predic_yr = prediction_year,
+                             start_dt = start_date,
+                             end_dt = end_date)
+    
+    #Column name key below:
+    #species_code -> spec_code
+    #scientific_name -> sci_name
+    #common_name -> comm_name
+    #prediction_year -> predict_yr
+    #type (not changed)
+    #season (not changed)
+    #start_date (not changed)
+    #end_date (not changed)
+    #geom (not changed)
+    #speciesID (not changed)
+    
+    ##pull species common name ----
+    
+    #use common name
+    name <- species_object$comm_name[1] #pull common name
+    name <- gsub(" ", "", tools::toTitleCase(name)) #take out space, use TitleCase
+    name <- gsub("'", "", name) #remove apostrophes, ArcGIS Pro does not like them
+    
+    #CHECK TO SEE IF ALREADY COMPLETED -> IF NOT, create unique name for file
+    if(name %in% speciesdone) next #SKIP THIS SPECIES BECAUSE IT IS ALREADY DONE
+    
+    
+    #Reccommendation to use geopackage instead of shapefiles
+    
+    #create name using name
+    gpkg_location <- paste0(gpkg_folder,"/", name, ".gpkg")
+    sf::st_write(species_object, gpkg_location, append=FALSE)
+    
+    
+  }
 
 #SAVE PROGRESS OF SPECIES----
   #create list of MATCHED
@@ -230,3 +286,22 @@ for(i in 1:length(testlist)){
   
   write.csv(eBirdmatches, list_location)
 
+  
+#Visualize range maps (not necessary)----
+
+  northernpintail <- as.data.frame(rangefile[38]) %>% 
+    sf::st_as_sf()
+  
+  northernpintail <- as.data.frame(testlist[38]) %>% 
+    sf::st_as_sf()
+  
+  
+  tmap_mode("view")
+  tm_shape(World, bbox = st_bbox(northernpintail)) +
+    tm_polygons(fill = "gray90", col = "white") +  # background map
+    
+    tm_shape(northernpintail) +
+    tm_borders(col = "blue", lwd = 2) +
+    tm_fill(col = "blue", alpha = 0.3) 
+  
+  species_rows$geometry <- st_simplify(species_rows$geometry, dTolerance = 0.01)
