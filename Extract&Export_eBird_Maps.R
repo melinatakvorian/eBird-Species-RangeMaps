@@ -216,69 +216,6 @@ for(i in 1:length(testlist)){
   
   
   }
-  
-  #exporting geopackages to folder ----
-  # 
-  # #store folder path
-  # gpkg_folder <- "N:/RStor/CEMML/ClimateChange/0_Natural Resources Teams/Wildlife/_RangeMaps/Shapefiles/Geopackage"
-  # 
-  # #identify files that are already completed
-  # speciesdone <- list.files(path = gpkg_folder, pattern = "\\.gpkg$")
-  # 
-  # #remove .shp ending to be able to run comparison later
-  # for(i in 1:length(speciesdone)){
-  #   strL <- str_length(speciesdone[i])
-  #   newL <- strL - 4
-  #   speciesdone[i] <- str_sub(speciesdone[i],1,newL)
-  # }
-  # 
-  # #EXPORT ALL FILES IN LIST THAT HAVE NOT BEEN DONE ALREADY
-  # #list <- c()
-  # for(i in 1:length(testlist)){
-  #   
-  #   #pull list item out so that it can be saved individually
-  #   species_object <- testlist[[i]][[2]]
-  #    NOT NEEDED
-  #   ##rename columns to be <10 characters long----
-  #   species_object <- rename(species_object,
-  #                            spec_code = species_code,
-  #                            sci_name = scientific_name, 
-  #                            comm_name = common_name,
-  #                            predic_yr = prediction_year,
-  #                            start_dt = start_date,
-  #                            end_dt = end_date)
-  #   
-  #   #Column name key below:
-  #   #species_code -> spec_code
-  #   #scientific_name -> sci_name
-  #   #common_name -> comm_name
-  #   #prediction_year -> predict_yr
-  #   #type (not changed)
-  #   #season (not changed)
-  #   #start_date (not changed)
-  #   #end_date (not changed)
-  #   #geom (not changed)
-  #   #speciesID (not changed)
-  #   
-  #   ##pull species common name ----
-  #   
-  #   #use common name
-  #   name <- species_object$comm_name[1] #pull common name
-  #   name <- gsub(" ", "", tools::toTitleCase(name)) #take out space, use TitleCase
-  #   name <- gsub("'", "", name) #remove apostrophes, ArcGIS Pro does not like them
-  #   
-  #   #CHECK TO SEE IF ALREADY COMPLETED -> IF NOT, create unique name for file
-  #   if(name %in% speciesdone) next #SKIP THIS SPECIES BECAUSE IT IS ALREADY DONE
-  #   
-  #   
-  #   #Reccommendation to use geopackage instead of shapefiles
-  #   
-  #   #create name using name
-  #   gpkg_location <- paste0(gpkg_folder,"/", name, ".gpkg")
-  #   sf::st_write(species_object, gpkg_location, append=FALSE)
-  #   
-  #   
-  # }
 
 #SAVE PROGRESS OF SPECIES----
   #create list of MATCHED
@@ -292,13 +229,11 @@ for(i in 1:length(testlist)){
   
 #Visualize range maps (not necessary)----
 
+  #before geometry is merged
   northernpintail <- as.data.frame(rangefile[38]) %>% 
     sf::st_as_sf()
-  
+  #after geometry is merged (this is to check that there are no issues around the poles)
   northernpintail <- as.data.frame(testlist[38]) %>% 
-    sf::st_as_sf()
-  
-  peregrinefalcon <- as.data.frame(testlist[41]) %>% 
     sf::st_as_sf()
   
   
