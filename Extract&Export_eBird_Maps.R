@@ -16,6 +16,7 @@ if (any(installed_packages == FALSE)) {
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
+#SET MAP TO PLANAR/FLAT TO PREVENT ISSUES AT THE ANTIMERIDIAN
 sf_use_s2(FALSE)
 
 # MATCH TEST OF SPECIES ----
@@ -127,9 +128,8 @@ for(i in 1:length(testlist)){
     )
     
     testlist[[i]][[2]]$season[3] <- "migration"
+    #testlist[[i]][[2]]$drawOrder[3] <- 1
     testlist[[i]][[2]] <- st_make_valid(testlist[[i]][[2]])  # <-- validate the whole object
-    
-    #testlist[[i]][[2]]$draw_order <- seq_len(nrow(testlist[[i]][[2]]))
     
     print(paste(testlist[[i]][[2]]$scientific_name[1], " merged 2 rows | index number: ", i))
   }
@@ -152,6 +152,30 @@ for(i in 1:length(testlist)){
     print("THESE SPECIES WERE NOT CHANGED BECAUSE THEY DO NOT HAVE MIGRATORY RANGES: ")
     print(list)
   }
+}
+
+#Add drawing order column----
+  #we want the following drawing order: 
+    #     season == "migration"            ~ 1,
+    #     season == "nonbreeding"          ~ 2,
+    #     season == "breeding"             ~ 3,
+    #     season == "resident"             ~ 1,
+    #     season == "general distribution" ~ 1,
+    #     TRUE                             ~ 1
+
+  for(i in 1:length(testlist)){
+    bird <- testlist[[i]][[2]]
+        bird <- bird %>% 
+          mutate(drawOrder = case_when(
+            season == "migration"            ~ 1,
+            season == "nonbreeding"          ~ 2,
+            season == "breeding"             ~ 3,
+            season == "resident"             ~ 1,
+            TRUE                             ~ 1
+          )
+          )
+        
+    testlist[[i]][[2]] <- bird
 }
 
 
