@@ -16,6 +16,8 @@ if (any(installed_packages == FALSE)) {
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
+#SET MAP TO PLANAR/FLAT TO PREVENT ISSUES AT THE ANTIMERIDIAN
+sf_use_s2(FALSE)
 
 # MATCH TEST OF SPECIES ----
 
@@ -112,11 +114,12 @@ for(i in 1:length(testlist)){
   if(length(testlist[[i]][[2]]$season) > 3){
     df <- testlist[[i]][[2]]
     
-    merged_geom1 <- st_union(df[c(3,4),]) 
+    merged_geom1 <- sf::st_union(df[c(3,4),]) 
+    merged_geom <- sf::st_make_valid(merged_geom1) #validate geometry
     
     # Take attributes from row 3 (or customize later)
     merged_row1 <- df[3,]
-    merged_row1$geom <- merged_geom1
+    sf::st_geometry(merged_row1) <- merged_geom1
     
     # Combine merged row with rows 1 and 2
     testlist[[i]][[2]] <- rbind(
@@ -125,8 +128,8 @@ for(i in 1:length(testlist)){
     )
     
     testlist[[i]][[2]]$season[3] <- "migration"
-    
-    #testlist[[i]][[2]]$draw_order <- seq_len(nrow(testlist[[i]][[2]]))
+    #testlist[[i]][[2]]$drawOrder[3] <- 1
+    testlist[[i]][[2]] <- st_make_valid(testlist[[i]][[2]])  # <-- validate the whole object
     
     print(paste(testlist[[i]][[2]]$scientific_name[1], " merged 2 rows | index number: ", i))
   }
@@ -151,11 +154,35 @@ for(i in 1:length(testlist)){
   }
 }
 
+#Add drawing order column----
+  #we want the following drawing order: 
+    #     season == "migration"            ~ 1,
+    #     season == "nonbreeding"          ~ 2,
+    #     season == "breeding"             ~ 3,
+    #     season == "resident"             ~ 1,
+    #     season == "general distribution" ~ 1,
+    #     TRUE                             ~ 1
+
+  for(i in 1:length(testlist)){
+    bird <- testlist[[i]][[2]]
+        bird <- bird %>% 
+          mutate(drawOrder = case_when(
+            season == "migration"            ~ 1,
+            season == "nonbreeding"          ~ 2,
+            season == "breeding"             ~ 3,
+            season == "resident"             ~ 1,
+            TRUE                             ~ 1
+          )
+          )
+        
+    testlist[[i]][[2]] <- bird
+}
+
 
 #exporting SHAPEfiles to folder ----
 
 #store folder path
-  shapefile_folder <- "N:/RStor/CEMML/ClimateChange/0_Natural Resources Teams/Wildlife/_RangeMaps/Shapefiles/Temporary"
+  shapefile_folder <- "N:/RStor/CEMML/ClimateChange/0_Natural Resources Teams/Wildlife/_RangeMaps/Shapefiles/Testing-R-Workflow"
 
 #identify files that are already completed
   speciesdone <- list.files(path = shapefile_folder, pattern = "\\.shp$")
@@ -203,78 +230,15 @@ for(i in 1:length(testlist)){
   name <- gsub("'", "", name) #remove apostrophes, ArcGIS Pro does not like them
   
   #CHECK TO SEE IF ALREADY COMPLETED -> IF NOT, create unique name for file
-  if(name %in% speciesdone) next #SKIP THIS SPECIES BECAUSE IT IS ALREADY DONE
+  #if(name %in% speciesdone) next #SKIP THIS SPECIES BECAUSE IT IS ALREADY DONE
   
   # #create name using name
-  shapefile_location <- paste0(shapefile_folder,"/", name, ".gpkg")
+  shapefile_location <- paste0(shapefile_folder,"/", name, ".shp")
 
   #export shapefile to file path
   st_write(species_object, shapefile_location, append=FALSE)
   
   
-  }
-  
-  #exporting geopackages to folder ----
-  
-  #store folder path
-  gpkg_folder <- "N:/RStor/CEMML/ClimateChange/0_Natural Resources Teams/Wildlife/_RangeMaps/Shapefiles/Geopackage"
-  
-  #identify files that are already completed
-  speciesdone <- list.files(path = gpkg_folder, pattern = "\\.shp$")
-  
-  #remove .shp ending to be able to run comparison later
-  for(i in 1:length(speciesdone)){
-    strL <- str_length(speciesdone[i])
-    newL <- strL - 4
-    speciesdone[i] <- str_sub(speciesdone[i],1,newL)
-  }
-  
-  #EXPORT ALL FILES IN LIST THAT HAVE NOT BEEN DONE ALREADY
-  #list <- c()
-  for(i in 1:length(testlist)){
-    
-    #pull list item out so that it can be saved individually
-    species_object <- testlist[[i]][[2]]
-    
-    ##rename columns to be <10 characters long----
-    species_object <- rename(species_object,
-                             spec_code = species_code,
-                             sci_name = scientific_name, 
-                             comm_name = common_name,
-                             predic_yr = prediction_year,
-                             start_dt = start_date,
-                             end_dt = end_date)
-    
-    #Column name key below:
-    #species_code -> spec_code
-    #scientific_name -> sci_name
-    #common_name -> comm_name
-    #prediction_year -> predict_yr
-    #type (not changed)
-    #season (not changed)
-    #start_date (not changed)
-    #end_date (not changed)
-    #geom (not changed)
-    #speciesID (not changed)
-    
-    ##pull species common name ----
-    
-    #use common name
-    name <- species_object$comm_name[1] #pull common name
-    name <- gsub(" ", "", tools::toTitleCase(name)) #take out space, use TitleCase
-    name <- gsub("'", "", name) #remove apostrophes, ArcGIS Pro does not like them
-    
-    #CHECK TO SEE IF ALREADY COMPLETED -> IF NOT, create unique name for file
-    if(name %in% speciesdone) next #SKIP THIS SPECIES BECAUSE IT IS ALREADY DONE
-    
-    
-    #Reccommendation to use geopackage instead of shapefiles
-    
-    #create name using name
-    gpkg_location <- paste0(gpkg_folder,"/", name, ".gpkg")
-    sf::st_write(species_object, gpkg_location, append=FALSE)
-    
-    
   }
 
 #SAVE PROGRESS OF SPECIES----
@@ -289,19 +253,22 @@ for(i in 1:length(testlist)){
   
 #Visualize range maps (not necessary)----
 
+  #before geometry is merged
   northernpintail <- as.data.frame(rangefile[38]) %>% 
     sf::st_as_sf()
-  
+  #after geometry is merged (this is to check that there are no issues around the poles)
   northernpintail <- as.data.frame(testlist[38]) %>% 
     sf::st_as_sf()
   
   
   tmap_mode("view")
-  tm_shape(World, bbox = st_bbox(northernpintail)) +
+  tm_shape(World, bbox = st_bbox(peregrinefalcon)) +
     tm_polygons(fill = "gray90", col = "white") +  # background map
     
-    tm_shape(northernpintail) +
+    tm_shape(peregrinefalcon) +
     tm_borders(col = "blue", lwd = 2) +
     tm_fill(col = "blue", alpha = 0.3) 
   
   species_rows$geometry <- st_simplify(species_rows$geometry, dTolerance = 0.01)
+
+  
