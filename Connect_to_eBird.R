@@ -29,10 +29,11 @@ if (!requireNamespace("remotes", quietly = TRUE)) {
 }
 remotes::install_github("ebird/ebirdst")
 
+
 ----------------------------------------------------------------------  
   #SET ACCESS KEY FOR DATA DOWNLOAD
   #NEED TO REQUEST ACCESS FROM EBIRD? Go here: (https://science.ebird.org/en/status-and-trends/download-data)
-  set_ebirdst_access_key("q2e1kfrur617") 
+  set_ebirdst_access_key("k26qd60hsqu7") 
 -------------------------------------------------------------------
   
   #use load_ranges() to get species ranges
