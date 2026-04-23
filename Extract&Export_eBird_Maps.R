@@ -28,7 +28,7 @@ if (!requireNamespace("remotes", quietly = TRUE)) {
 remotes::install_github("ebird/ebirdst")
 
 # ! set access key for data download - ONLY IF YOU HAVE NEVER BEFORE
-  #    set_ebirdst_access_key("q2e1kfrur617")
+  #    set_ebirdst_access_key("k26qd60hsqu7")
 
 #use load_ranges() to get species ranges
 species_names <- ebirdst_runs #ebirdst_runs has all the available species in it
@@ -230,7 +230,7 @@ for(i in 1:length(testlist)){
   name <- gsub("'", "", name) #remove apostrophes, ArcGIS Pro does not like them
   
   #CHECK TO SEE IF ALREADY COMPLETED -> IF NOT, create unique name for file
-  #if(name %in% speciesdone) next #SKIP THIS SPECIES BECAUSE IT IS ALREADY DONE
+  if(name %in% speciesdone) next #SKIP THIS SPECIES BECAUSE IT IS ALREADY DONE
   
   # #create name using name
   shapefile_location <- paste0(shapefile_folder,"/", name, ".shp")
