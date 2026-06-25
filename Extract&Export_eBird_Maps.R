@@ -34,7 +34,7 @@ remotes::install_github("ebird/ebirdst")
 species_names <- ebirdst_runs #ebirdst_runs has all the available species in it
 
 #pull smartsheet list
-cemml_raw <- read_xlsx("N:/RStor/CEMML/ClimateChange/0_Natural Resources Teams/Wildlife/_Excel Files For Viewer/Species Assessments - Viewer.xlsx")
+cemml_raw <- read_xlsx("N:/RStor/CEMML/ClimateChange/0_Natural Resources Teams/Wildlife/_TEVAs/Species Assessments - Viewer.xlsx")
 
 #trim CEMML master list dataset
 # remove spaces in column names that we will keep because it is annoying to deal with in R
@@ -182,7 +182,7 @@ for(i in 1:length(testlist)){
 #exporting SHAPEfiles to folder ----
 
 #store folder path
-  shapefile_folder <- "N:/RStor/CEMML/ClimateChange/0_Natural Resources Teams/Wildlife/_RangeMaps/Shapefiles/Testing-R-Workflow"
+  shapefile_folder <- "N:/RStor/CEMML/ClimateChange/0_Natural Resources Teams/Wildlife/_TEVAs/_RangeMaps/Shapefiles/Temporary"
 
 #identify files that are already completed
   speciesdone <- list.files(path = shapefile_folder, pattern = "\\.shp$")
@@ -254,18 +254,18 @@ for(i in 1:length(testlist)){
 #Visualize range maps (not necessary)----
 
   #before geometry is merged
-  northernpintail <- as.data.frame(rangefile[38]) %>% 
+  ceruleanwarbler <- as.data.frame(rangefile[38]) %>% 
     sf::st_as_sf()
   #after geometry is merged (this is to check that there are no issues around the poles)
-  northernpintail <- as.data.frame(testlist[38]) %>% 
+  ceruleanwarbler <- as.data.frame(testlist[38]) %>% 
     sf::st_as_sf()
   
   
   tmap_mode("view")
-  tm_shape(World, bbox = st_bbox(peregrinefalcon)) +
+  tm_shape(World, bbox = st_bbox(ceruleanwarbler)) +
     tm_polygons(fill = "gray90", col = "white") +  # background map
     
-    tm_shape(peregrinefalcon) +
+    tm_shape(ceruleanwarbler) +
     tm_borders(col = "blue", lwd = 2) +
     tm_fill(col = "blue", alpha = 0.3) 
   
