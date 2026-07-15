@@ -1,6 +1,7 @@
 #Append geospatial file to species in nested list ----
 
-realmatch <- c("Laterallus jamaicensis", "Coccyzus americanus", "Anarhynchus montanus")
+#realmatch <- c("Laterallus jamaicensis", "Coccyzus americanus", "Anarhynchus montanus")
+realmatch <- c("Sternula antillarum")
 rangefile <- as.list(realmatch)
 
 for(i in 1:length(rangefile)){
@@ -37,7 +38,7 @@ for(i in 1:length(rangefile)){
   
 }
 
-##merging breeding migration layers----
+#merging breeding migration layers----
 testlist <- rangefile
 list <- c()
 for(i in 1:length(testlist)){
@@ -84,6 +85,33 @@ for(i in 1:length(testlist)){
   }
 }
 
+#if there is only breeding, postbreeding migration, and prebreeding migration layers ----
+for(i in 1:length(testlist)){
+  if(length(testlist[[i]][[2]]$season) > 2){
+    df <- testlist[[i]][[2]]
+    
+    merged_geom1 <- sf::st_union(df[c(2,3),]) 
+    merged_geom <- sf::st_make_valid(merged_geom1) #validate geometry
+    
+    # Take attributes from row 3 (or customize later)
+    merged_row1 <- df[2,]
+    sf::st_geometry(merged_row1) <- merged_geom1
+    
+    # Combine merged row with rows 1
+    testlist[[i]][[2]] <- rbind(
+      df[c(1),],  # keep rows 1
+      merged_row1            # add merged polygon
+    )
+    
+    testlist[[i]][[2]]$season[2] <- "migration"
+    #testlist[[i]][[2]]$drawOrder[3] <- 1
+    testlist[[i]][[2]] <- st_make_valid(testlist[[i]][[2]])  # <-- validate the whole object
+    
+    print(paste(testlist[[i]][[2]]$scientific_name[1], " merged 2 rows | index number: ", i))
+  }
+}
+
+
 #Add drawing order column----
   for(i in 1:length(testlist)){
     bird <- testlist[[i]][[2]]
@@ -102,7 +130,8 @@ for(i in 1:length(testlist)){
 
 
 #Add speciesID column---
-#I DID THIS IN ARCPRO INSTEAD. I ALSO RENAMED THE SHAPEFILE NAMES TO INCLUDE THE FULL SUBSPECIES NAME, SO THAT IT WOULD APPEAR CORRECTS
+#I DID THIS IN ARCPRO INSTEAD. 
+#I ALSO RENAMED THE SHAPEFILE NAMES TO INCLUDE THE FULL SUBSPECIES NAME, SO THAT IT WOULD APPEAR CORRECT
 
 #exporting SHAPEfiles to folder ----
 
@@ -168,56 +197,20 @@ for(i in 1:length(testlist)){
 
 
 #example of downloading & mapping species ----
-#black rail
-ebirdst_download_status("Black Rail",
+#least tern
+ebirdst_download_status("Least Tern",
                         path = ebirdst_data_dir(),
                         download_ranges = TRUE,
                         pattern = "_27km_")
 
-blackrail <- load_ranges(
-  "blkrai",
+leater1 <- load_ranges(
+  "leater1",
   resolution = "27km",
   smoothed = TRUE,
   path = ebirdst_data_dir()
 )
 
-tm_shape(World, bbox = st_bbox(blackrail)) +
+tm_shape(World, bbox = st_bbox(leater1)) +
   tm_polygons(fill = "gray90", col = "white") +  # background map
-  tm_shape(blackrail) +  # zoom to polygon extent
-  tm_polygons("season")
-
-#Mountain Plover
-ebirdst_download_status("Mountain Plover",
-                        path = ebirdst_data_dir(),
-                        download_ranges = TRUE,
-                        pattern = "_27km_")
-
-mountainplover <- load_ranges(
-  "mouplo",
-  resolution = "27km",
-  smoothed = TRUE,
-  path = ebirdst_data_dir()
-)
-
-tm_shape(World, bbox = st_bbox(mountainplover)) +
-  tm_polygons(fill = "gray90", col = "white") +  # background map
-  tm_shape(mountainplover) +  # zoom to polygon extent
-  tm_polygons("season")
-
-#Yellow-billed Cuckoo
-ebirdst_download_status("Yellow-billed Cuckoo",
-                        path = ebirdst_data_dir(),
-                        download_ranges = TRUE,
-                        pattern = "_27km_")
-
-yellowbilledc <- load_ranges(
-  "yebcuc",
-  resolution = "27km",
-  smoothed = TRUE,
-  path = ebirdst_data_dir()
-)
-
-tm_shape(World, bbox = st_bbox(yellowbilledc)) +
-  tm_polygons(fill = "gray90", col = "white") +  # background map
-  tm_shape(yellowbilledc) +  # zoom to polygon extent
+  tm_shape(leater1) +  # zoom to polygon extent
   tm_polygons("season")
