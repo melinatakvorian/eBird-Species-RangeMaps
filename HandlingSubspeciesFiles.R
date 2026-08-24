@@ -1,7 +1,7 @@
 #Append geospatial file to species in nested list ----
 
 #realmatch <- c("Laterallus jamaicensis", "Coccyzus americanus", "Anarhynchus montanus")
-realmatch <- c("Sternula antillarum")
+realmatch <- c("Calidris canutus")
 rangefile <- as.list(realmatch)
 
 for(i in 1:length(rangefile)){
@@ -198,13 +198,13 @@ for(i in 1:length(testlist)){
 
 #example of downloading & mapping species ----
 #least tern
-ebirdst_download_status("Least Tern",
+ebirdst_download_status("Red Knot",
                         path = ebirdst_data_dir(),
                         download_ranges = TRUE,
                         pattern = "_27km_")
 
 leater1 <- load_ranges(
-  "leater1",
+  "redkno",
   resolution = "27km",
   smoothed = TRUE,
   path = ebirdst_data_dir()
